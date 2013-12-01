@@ -1,9 +1,6 @@
 <?php
 
 require 'vendor/autoload.php';
-require 'NotORM.php';
-
-
 
 $db_name = "";
 $db_host = "";
