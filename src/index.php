@@ -1,9 +1,6 @@
 <?php
-
 require 'vendor/autoload.php';
-require 'NotORM.php';
-
-
+require "NotORM/NotORM.php";
 
 $db_name = "";
 $db_host = "";
@@ -21,14 +18,10 @@ $app = new \Slim\Slim(array(
 
 //routes
 $app->get('/', function (){
-	echo "Tasks list";
+	echo "Tasks list"
 });
 
 $app->group('/task', function () use ($app) {
-
-	$app->get('/add', function (){
-		echo "Adding task";
-	});
 	$app->get('/:taskID',function ($taskID){
 		echo "Task: ".$taskID." details";
 	});
@@ -36,14 +29,13 @@ $app->group('/task', function () use ($app) {
 	$app->get('/:taskID/edit', function ($taskID){
 		echo "Task:".$taskID." edit";
 	});
+
+	$app->get('/add', function (){
+		echo "Adding task";
+	});
 });
 
 $app->group('/group', function () use ($app){
-
-	$app->get('/add', function (){
-		echo "adding group";
-	});
-	
 	$app->get('/:groupID',function ($groupID){
 		echo "Group: ".$groupID." details";
 	});
@@ -51,19 +43,23 @@ $app->group('/group', function () use ($app){
 	$app->get('/:groupID/edit', function ($groupID){
 		echo "Group: ".$groupID." edit";
 	});
+
+	$app->get('/add', function (){
+		echo "adding group";
+	});
 });
 
 $app->group('/user', function () use ($app){
-
-	$app->get('/add', function (){
-		echo "adding user";
-	});
 	$app->get('/:userID', function ($userID){
 		echo "User: ".$userID." details";
 	});
 
 	$app->get('/:userID/edit', function ($userID){
 		echo "User: ".$userID." edit";
+	});
+
+	$app->get('/add', function (){
+		echo "adding user";
 	});
 });
 
