@@ -1,4 +1,5 @@
 <?php
+
 require 'vendor/autoload.php';
 require 'config.php'; //engine config
 define('ENGINE', 'ENGINE'); //sql engine used by the database, possible: MySQL(mysql), SQLite(sqlite), PostgreSQL(pgsql), MS SQL(sqlsrv), Oracle(oci)
