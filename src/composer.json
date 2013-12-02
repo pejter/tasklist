@@ -1,6 +1,7 @@
 {
     "require": {
         "slim/slim": "2.3.*",
-        "vrana/notorm": "dev-master"
+        "vrana/notorm": "dev-master",
+        "petebrowne/slim-layout-view": "0.2.*"
     }
 }
