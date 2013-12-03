@@ -18,7 +18,8 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 --
 -- Baza danych: `task`
 --
-
+CREATE DATABASE IF NOT EXISTS `task`;
+USE `task`;
 -- --------------------------------------------------------
 
 --
@@ -27,7 +28,7 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
 CREATE TABLE IF NOT EXISTS `group` (
   `groupID` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(30) COLLATE latin1_general_ci NOT NULL,
+  `name` varchar(30) COLLATE latin2_general_ci NOT NULL,
   PRIMARY KEY (`groupID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci AUTO_INCREMENT=1 ;
 
@@ -63,8 +64,8 @@ CREATE TABLE IF NOT EXISTS `membership` (
 CREATE TABLE IF NOT EXISTS `task` (
   `taskID` int(11) NOT NULL AUTO_INCREMENT,
   `groupID` int(11) NOT NULL,
-  `name` varchar(30) COLLATE latin1_general_ci NOT NULL,
-  `description` tinytext COLLATE latin1_general_ci NOT NULL,
+  `name` varchar(30) COLLATE latin2_general_ci NOT NULL,
+  `description` tinytext COLLATE latin2_general_ci NOT NULL,
   `due_date` datetime NOT NULL,
   `created_byID` int(11) NOT NULL,
   PRIMARY KEY (`taskID`),
@@ -85,8 +86,8 @@ CREATE TABLE IF NOT EXISTS `task` (
 
 CREATE TABLE IF NOT EXISTS `user` (
   `userID` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(20) COLLATE latin1_general_ci NOT NULL,
-  `surname` varchar(30) COLLATE latin1_general_ci NOT NULL,
+  `name` varchar(20) COLLATE latin2_general_ci,
+  `surname` varchar(30) COLLATE latin2_general_ci,
   `mail` varchar(90) COLLATE latin1_general_ci NOT NULL,
   `login` varchar(30) COLLATE latin1_general_ci NOT NULL,
   `password` char(16) NOT NULL,
