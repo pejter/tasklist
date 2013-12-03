@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `surname` varchar(30) COLLATE latin1_general_ci NOT NULL,
   `mail` varchar(90) COLLATE latin1_general_ci NOT NULL,
   `login` varchar(30) COLLATE latin1_general_ci NOT NULL,
-  `password` binary(20) NOT NULL,
+  `password` char(16) NOT NULL,
   `position` tinyint(4) NOT NULL,
   PRIMARY KEY (`userID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci AUTO_INCREMENT=1 ;
