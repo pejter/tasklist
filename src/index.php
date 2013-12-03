@@ -60,12 +60,14 @@ $app->get('/login', function () use ($app){
 
 $app->post('/login', function () use ($app,$db){
 	$post = $app->request->post();
-	$user = $db->user()->where('username=? AND password=?', $post['username'], md5($post['password']))->fetch();
+	$user = $db->user()->where('login=? AND password=?', $post['login'], md5($post['password']))->fetch();
 	if($user){
 		session_start();
 		$_SESSION['lastRequest'] = time();
 		$_SESSION['timeout'] = SESSION_TIMEOUT;
-		$_SESSION['username'] = $user['username'];
+		$_SESSION['username'] = $user['login'];
+	} else {
+		echo "Incorrect login os password";
 	}
 });
 
@@ -88,9 +90,9 @@ $app->get('/register', function () use ($app){
 
 $app->post('/register', function () use ($app,$db){
 	$userInfo = $app->request->post();
-	if(!preg_match('/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b/i', $userInfo['email']))
+	if(!preg_match('/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b/i', $userInfo['mail']))
 		echo "Not an email";
-	elseif($db->user()->where('user=? OR email=?'))
+	elseif($db->user()->where('login=? OR mail=?'))
 		echo "User already exists!";
 	else
 		$db->user()->insert($userInfo);
