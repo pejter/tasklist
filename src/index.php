@@ -8,6 +8,7 @@ define('SESSION_TIMEOUT', 600);
 $pdo = new PDO(ENGINE.":host=".$db_host.";dbname=".$db_name, $db_user, $db_pass);
 $db = new NotORM($pdo);
 
+//application config
 $app = new \Slim\Slim(array(
 	'mode' => 'development',
 	'debug' => true,
