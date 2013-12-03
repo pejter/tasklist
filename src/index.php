@@ -2,11 +2,12 @@
 
 require 'vendor/autoload.php';
 require 'config.php'; //engine config
-define('ENGINE', 'ENGINE'); //sql engine used by the database, possible: MySQL(mysql), SQLite(sqlite), PostgreSQL(pgsql), MS SQL(sqlsrv), Oracle(oci)
+define('ENGINE', 'mysql'); //sql engine used by the database, possible: MySQL(mysql), SQLite(sqlite), PostgreSQL(pgsql), MS SQL(sqlsrv), Oracle(oci)
 define('SESSION_TIMEOUT', 600);
 
-$pdo = new PDO(ENGINE.":host=".$db_host.";dbname=".$db_name, $db_user, $db_pass);
+$pdo = new PDO(ENGINE.':host='.$db_host.';dbname='.$db_name, $db_user, $db_pass);
 $db = new NotORM($pdo);
+
 
 //application config
 $app = new \Slim\Slim(array(
@@ -14,7 +15,7 @@ $app = new \Slim\Slim(array(
 	'debug' => true,
 	'templates.path' => './templates',
 	'view' => '\Slim\LayoutView',
-	'layout' => './templates/main.php'
+	'layout' => 'main.php'
 ));
 \Slim\Route::setDefaultConditions(array(
 	'id' => '[0-9]{1,}'
@@ -26,8 +27,9 @@ function refresh(){
 }
 
 //check session timeout and logout current user
+if(isset($_SESSION['username']))
 if($_SESSION['lastRequest']+$_SESSION['timeout']<time()){
-	destroy_session();
+	session_destroy();
 	refresh();
 } else {
 	$_SESSION['lastRequest'] = time();
@@ -39,8 +41,7 @@ $app->get('/', function () use ($app,$db){
 	$tasks = $db->task();
 
 	$app->render('home.php',array(
-		'tasks' => $tasks,
-		'title' => 'Home'
+		'tasks' => $tasks
 	));
 });
 
