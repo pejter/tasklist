@@ -96,7 +96,7 @@ $app->post('/register', function () use ($app,$db){
 		$db->user()->insert($userInfo);
 });
 
-$app->group('/task', function () use ($app) {
+$app->group('/task', function () use ($app,$db) {
 
 	//task adding
 	$app->get('/add', function () use ($app){
