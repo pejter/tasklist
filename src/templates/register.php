@@ -7,11 +7,11 @@
 	<form class="form-signin">
 		<h2 class="form-signin-heading">Dolacz do nas juz dzis!</h2>
 		
-		<input type="text" class="form-control" placeholder="Nazwa uzytkownika*" required="" autofocus="">
-		<input type="text" class="form-control" placeholder="Adres Email*" required="" autofocus="">
-		<input type="text" class="form-control" placeholder="Imie">
-		<input type="text" class="form-control" placeholder="Nazwisko">
-		<input type="password" class="form-control" placeholder="Haslo*" required="">
+		<input type="text" class="form-control" placeholder="Nazwa uzytkownika*" name="login" required="" autofocus="">
+		<input type="text" class="form-control" placeholder="Adres Email*" name="mail" required="" autofocus="">
+		<input type="text" class="form-control" placeholder="Imie" name="name">
+		<input type="text" class="form-control" placeholder="Nazwisko" name="surname">
+		<input type="password" class="form-control" placeholder="Haslo*" name="password" required="">
 		
 		<table>
 		<tr>
