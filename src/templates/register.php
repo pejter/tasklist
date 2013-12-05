@@ -4,7 +4,7 @@
 
 <div class="container">
 
-	<form class="form-signin">
+	<form class="form-signin" method="post">
 		<h2 class="form-signin-heading">Dolacz do nas juz dzis!</h2>
 		
 		<input type="text" class="form-control" placeholder="Nazwa uzytkownika*" name="login" required="" autofocus="">

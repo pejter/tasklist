@@ -20,7 +20,7 @@ $app = new \Slim\Slim(array(
 \Slim\Route::setDefaultConditions(array(
 	'id' => '[0-9]{1,}'
 ));
-$db->debug = $app->config('debug');
+//$db->debug = $app->config('debug');
 
 function refresh(){
 	$app->redirect($app->request->getPath());
@@ -92,7 +92,7 @@ $app->post('/register', function () use ($app,$db){
 	$userInfo = $app->request->post();
 	if(!preg_match('/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b/i', $userInfo['mail']))
 		echo "Not an email";
-	elseif($db->user()->where('login=? OR mail=?'))
+	elseif($db->user()->where('login=? OR mail=?', $userInfo['login'],$userInfo['mail'])->fetch())
 		echo "User already exists!";
 	else
 		$db->user()->insert($userInfo);

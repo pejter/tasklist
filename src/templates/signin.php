@@ -4,11 +4,11 @@
 
 <div class="container">
 
-	<form class="form-signin">
+	<form class="form-signin" method="post">
 		<h2 class="form-signin-heading">Zaloguj sie™</h2>
 
-		<input type="text" class="form-control" placeholder="Adres Email" required="" autofocus="">
-		<input type="password" class="form-control" placeholder="Hasło" required="">
+		<input type="text" class="form-control" placeholder="Adres Email" name="login" required="" autofocus="">
+		<input type="password" class="form-control" placeholder="Hasło" name ="password" required="">
 
 		<label class="checkbox">
 			<input type="checkbox" value="remember-me"> Zapamietaj
