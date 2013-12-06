@@ -28,7 +28,7 @@ function refresh(){
 
 //check session timeout and logout current user
 if(isset($_SESSION['username']))
-if($_SESSION['lastRequest']+$_SESSION['timeout']<time()){
+if($_SESSION['lastRequest']+SESSION_TIMEOUT<time()){
 	session_destroy();
 	refresh();
 } else {
@@ -60,14 +60,16 @@ $app->get('/login', function () use ($app){
 
 $app->post('/login', function () use ($app,$db){
 	$post = $app->request->post();
-	$user = $db->user()->where('login=? AND password=?', $post['login'], md5($post['password']))->fetch();
-	if($user){
+	$user = $db->user()->where('login', $post['login'])->fetch();
+	if($user==null)
+		echo "Wrong username";
+	elseif($user['password']==md5($post['password'])){
 		session_start();
 		$_SESSION['lastRequest'] = time();
-		$_SESSION['timeout'] = SESSION_TIMEOUT;
 		$_SESSION['username'] = $user['login'];
+		echo "Login successful";
 	} else {
-		echo "Incorrect login os password";
+		echo "Incorrect password";
 	}
 });
 
@@ -85,7 +87,7 @@ $app->get('/register', function () use ($app){
 	if(!isset($_SESSION['username']))
 		$app->render('register.php');
 	else
-		$app->render('/');
+		$app->redirect('/');
 });
 
 $app->post('/register', function () use ($app,$db){
@@ -94,8 +96,11 @@ $app->post('/register', function () use ($app,$db){
 		echo "Not an email";
 	elseif($db->user()->where('login=? OR mail=?', $userInfo['login'],$userInfo['mail'])->fetch())
 		echo "User already exists!";
-	else
+	else {
+		$userInfo['password'] = md5($userInfo['password']);
 		$db->user()->insert($userInfo);
+		echo "User registered successfully";
+	}
 });
 
 $app->group('/task', function () use ($app,$db) {
