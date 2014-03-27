@@ -6,7 +6,13 @@ define('ENGINE', 'mysql'); //sql engine used by the database, possible: MySQL(my
 define('SESSION_TIMEOUT', 600);
 
 $pdo = new PDO(ENGINE.':host='.$db_host.';dbname='.$db_name, $db_user, $db_pass);
-$db = new NotORM($pdo);
+$naming = new NotORM_Structure_Convention(
+    $primary = "%sID", // $tableID
+    $foreign = "%sID", // $tableID
+    $table = "%s", // {$table}
+    $prefix = "" // $table
+);
+$db = new NotORM($pdo, $naming);
 
 
 //application config
@@ -27,7 +33,7 @@ function refresh(){
 }
 
 //check session timeout and logout current user
-if(isset($_SESSION['username']))
+if(isset($_SESSION))
 if($_SESSION['lastRequest']+SESSION_TIMEOUT<time()){
 	session_destroy();
 	refresh();
@@ -38,7 +44,7 @@ if($_SESSION['lastRequest']+SESSION_TIMEOUT<time()){
 
 //routes
 $app->get('/', function () use ($app,$db){
-	$tasks = $db->task();
+	$tasks = $db->task()->order("due_date DESC");
 
 	$app->render('home.php',array(
 		'tasks' => $tasks
@@ -122,7 +128,7 @@ $app->group('/task', function () use ($app,$db) {
 
 	//task details
 	$app->get('/:id',function ($id) use ($app,$db){
-		$task = $db->task()->where('id',$id);
+		$task = $db->task()->where('taskID',$id);
 
 		if($task->fetch())
 			$app->render('task-details.php',array(
@@ -134,7 +140,7 @@ $app->group('/task', function () use ($app,$db) {
 
 	//task editing
 	$app->get('/:id/edit', function ($id) use ($app,$db){
-		$task = $db->task()->where('id', $id);
+		$task = $db->task()->where('taskID', $id);
 
 		if($task->fetch())
 			$app->render('task-edit.php', array(
@@ -143,7 +149,7 @@ $app->group('/task', function () use ($app,$db) {
 	});
 
 	$app->put('/:id/edit', function ($id) use ($app,$db){
-		$task = $db->task()->where('id', $id);
+		$task = $db->task()->where('taskID', $id);
 
 		if($task->fetch()){
 			$put = $app->request->put();
@@ -202,7 +208,7 @@ $app->group('/user', function () use ($app,$db){
 	
 	//user details
 	$app->get('/:id', function ($id) use ($app,$db){
-		$user = $db->user()->where('id', $id);
+		$user = $db->user()->where('userID', $id);
 
 		$groups = array();
 		foreach($user->membership() as $group){

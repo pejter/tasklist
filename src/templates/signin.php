@@ -7,7 +7,7 @@
 	<form class="form-signin" method="post">
 		<h2 class="form-signin-heading">Zaloguj sie™</h2>
 
-		<input type="text" class="form-control" placeholder="Adres Email" name="login" required="" autofocus="">
+		<input type="text" class="form-control" placeholder="Login" name="login" required="" autofocus="">
 		<input type="password" class="form-control" placeholder="Hasło" name ="password" required="">
 
 		<label class="checkbox">
