@@ -10,7 +10,7 @@
 
 	<title>Tasklist</title>
 
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 	<link rel="stylesheet" href="../static/css/main.css">
 </head>
 <body>
@@ -21,6 +21,7 @@
 			<li><a href="/login">Login</a></li>
 			<li><a href="/register">Register</a></li>
 		</ul>
+		<span id="ident"><?php if(isset($_SESSION['username'])) echo "<span>".$_SESSION['username']."</span><a id=\"auth\" href=\"/logout?redirect_url={$_SERVER['REQUEST_URI']}\">Logout</a>"; else echo '<a id="auth" href="/login">Login</a>'; ?></span>
 	</div>
 </nav>
 <?php echo $yield ?>

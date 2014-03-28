@@ -21,3 +21,41 @@ body{
 	height: 4px;
 	margin-top: -4px;
 }
+
+#ident{
+	color: #777;
+	margin: 0;
+	padding: 15px 0;
+	float: right;
+	display: block;
+	font-size: 14px;
+	height: 50px;
+	border: 0;
+	border-left: 1px solid #ddd;
+	line-height: 20px;
+	position: relative;
+	text-align: right;
+}
+
+#ident>span{
+	padding-bottom: 15px;
+	padding-left: 15px;
+	padding-right: 15px;
+	padding-top: 15px;
+}
+
+#auth{
+	color: inherit;
+	text-decoration: none;
+	transition: all .4s;
+	padding-bottom: 15px;
+	padding-left: 15px;
+	padding-right: 15px;
+	padding-top: 15px;
+}
+
+#auth:hover{
+	color: #FFF;
+	text-decoration: none;
+	background-color: #428bca;
+}

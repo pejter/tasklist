@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS `task` (
   `groupID` int(11) NOT NULL,
   `name` varchar(30) COLLATE latin2_general_ci NOT NULL,
   `description` tinytext COLLATE latin2_general_ci NOT NULL,
-  `due_date` datetime NOT NULL,
+  `due_date` int(11) UNSIGNED NOT NULL,
   `created_byID` int(11) NOT NULL,
   PRIMARY KEY (`taskID`),
   KEY `groupID` (`groupID`),

@@ -1,9 +1,11 @@
 <?php
-
 require 'vendor/autoload.php';
 require 'config.php'; //engine config
 define('ENGINE', 'mysql'); //sql engine used by the database, possible: MySQL(mysql), SQLite(sqlite), PostgreSQL(pgsql), MS SQL(sqlsrv), Oracle(oci)
 define('SESSION_TIMEOUT', 600);
+
+session_cache_limiter(false);
+session_start();
 
 $pdo = new PDO(ENGINE.':host='.$db_host.';dbname='.$db_name, $db_user, $db_pass);
 $naming = new NotORM_Structure_Convention(
@@ -19,6 +21,7 @@ $db = new NotORM($pdo, $naming);
 $app = new \Slim\Slim(array(
 	'mode' => 'development',
 	'debug' => true,
+	'session.handler' => null,
 	'templates.path' => './templates',
 	'view' => '\Slim\LayoutView',
 	'layout' => 'main.php'
@@ -33,7 +36,7 @@ function refresh(){
 }
 
 //check session timeout and logout current user
-if(isset($_SESSION))
+if(isset($_SESSION['username']))
 if($_SESSION['lastRequest']+SESSION_TIMEOUT<time()){
 	session_destroy();
 	refresh();
@@ -70,10 +73,9 @@ $app->post('/login', function () use ($app,$db){
 	if($user==null)
 		echo "Wrong username";
 	elseif($user['password']==md5($post['password'])){
-		session_start();
 		$_SESSION['lastRequest'] = time();
 		$_SESSION['username'] = $user['login'];
-		echo "Login successful";
+		$app->render('login-success.html');
 	} else {
 		echo "Incorrect password";
 	}
