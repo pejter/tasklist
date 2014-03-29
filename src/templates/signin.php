@@ -1,5 +1,5 @@
 <style type="text/css" media="screen">
-	@import '../static/css/signin.css';
+	@import '/static/css/signin.css';
 </style>
 
 <div class="container">

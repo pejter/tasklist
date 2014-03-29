@@ -47,11 +47,16 @@ if($_SESSION['lastRequest']+SESSION_TIMEOUT<time()){
 
 //routes
 $app->get('/', function () use ($app,$db){
-	$tasks = $db->task()->order("due_date DESC");
+	if(!isset($_SESSION['userID'])){
+		$app->render('home-nologin.php');
+	} else {
+		$groups = $db->membership()->where('userID',$_SESSION['userID']);
+		$tasks = $db->task()->where('groupsID',$groups)->order("due_date DESC");
 
-	$app->render('home.php',array(
-		'tasks' => $tasks
-	));
+		$app->render('home.php',array(
+			'tasks' => $tasks
+		));
+	}
 });
 
 //login routes
@@ -75,6 +80,7 @@ $app->post('/login', function () use ($app,$db){
 	elseif($user['password']==md5($post['password'])){
 		$_SESSION['lastRequest'] = time();
 		$_SESSION['username'] = $user['login'];
+		$_SESSION['userID'] = $user['userID'];
 		$app->render('login-success.html');
 	} else {
 		echo "Incorrect password";
@@ -120,6 +126,12 @@ $app->group('/task', function () use ($app,$db) {
 
 	$app->post('/add', function () use ($app,$db){
 		$post = $app->request->post();
+
+		list($date, $time) = explode(' ', $put['due_date']);
+		list($due_date['d'], $due_date['m'], $due_date['y']) = explode('/', $date);
+		list($due_time['h'], $due_time['i']) = explode(':', $time);
+		$post['due_date'] = mktime($due_time['h'], $due_time['i'], 0, $due_date['m'], $due_date['d'], $due_date['y']);
+		
 		$result = $db->task()->insert($post);
 
 		if(!$result)
@@ -130,37 +142,51 @@ $app->group('/task', function () use ($app,$db) {
 
 	//task details
 	$app->get('/:id',function ($id) use ($app,$db){
-		$task = $db->task()->where('taskID',$id);
+		$result = $db->task()->where('taskID',$id);
 
-		if($task->fetch())
+		if($task = $result->fetch()){
+			$task['creator'] = $task->user['name'].' '.$task->user['surname'];
+			$task['group'] = $task->groups['name'];
 			$app->render('task-details.php',array(
-				'task' => $task
+				'task' => $task,
+				'canEdit' => ($task->user['position'] <= 2)
 			));
-		else
+		} else
 			echo "Task not found";
 	});
 
 	//task editing
 	$app->get('/:id/edit', function ($id) use ($app,$db){
-		$task = $db->task()->where('taskID', $id);
+		$result = $db->task()->where('taskID', $id);
 
-		if($task->fetch())
+		if($task = $result->fetch())
 			$app->render('task-edit.php', array(
 				'task' => $task
 			));
 	});
 
 	$app->put('/:id/edit', function ($id) use ($app,$db){
-		$task = $db->task()->where('taskID', $id);
+		$result = $db->task()->where('taskID', $id);
 
-		if($task->fetch()){
+		if($task = $result->fetch()){
 			$put = $app->request->put();
-			$result = $task->update($put);
+			unset($put['_METHOD']);
+			list($date, $time) = explode(' ', $put['due_date']);
+			list($due_date['d'], $due_date['m'], $due_date['y']) = explode('/', $date);
+			list($due_time['h'], $due_time['i']) = explode(':', $time);
+			$put['due_date'] = mktime($due_time['h'], $due_time['i'], 0, $due_date['m'], $due_date['d'], $due_date['y']);
+			if($put != $task->jsonSerialize()){
+				$result = $task->update($put);
 
-			if(!$result)
-				echo "Error!";
-			else
-				echo "Task updated successfully";
+				if(!$result){
+					echo "Error!<br>Request: ";
+					var_dump($put);
+					echo "<br>Record: ";
+					var_dump($task->jsonSerialize());
+				} else
+					$app->redirect('/task/'.$put['taskID']);
+			} else
+				$app->redirect('/task/'.$put['taskID']);
 		}
 		else
 			echo "Task not found";
@@ -176,7 +202,7 @@ $app->group('/group', function () use ($app,$db){
 
 	//group details
 	$app->get('/:id',function ($id) use ($app,$db){
-		$group = $db->group();
+		$group = $db->groups()->where('groupsID', $id);
 
 		$members = array();
 		foreach($group->membership() as $user){

@@ -18,18 +18,18 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 --
 -- Baza danych: `task`
 --
-CREATE DATABASE IF NOT EXISTS `task`;
-USE `task`;
+CREATE DATABASE IF NOT EXISTS `tasklist`;
+USE `tasklist`;
 -- --------------------------------------------------------
 
 --
 -- Struktura tabeli dla  `group`
 --
 
-CREATE TABLE IF NOT EXISTS `group` (
-  `groupID` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `groups` (
+  `groupsID` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) COLLATE latin2_general_ci NOT NULL,
-  PRIMARY KEY (`groupID`)
+  PRIMARY KEY (`groupsID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci AUTO_INCREMENT=1 ;
 
 --
@@ -44,9 +44,11 @@ CREATE TABLE IF NOT EXISTS `group` (
 --
 
 CREATE TABLE IF NOT EXISTS `membership` (
-  `groupID` int(11) NOT NULL,
+  `membershipID` int(11) NOT NULL AUTO_INCREMENT,
+  `groupsID` int(11) NOT NULL,
   `userID` int(11) NOT NULL,
-  KEY `groupID` (`groupID`),
+  PRIMARY KEY (`membershipID`),
+  KEY `groupsID` (`groupsID`),
   KEY `userID` (`userID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
@@ -63,13 +65,13 @@ CREATE TABLE IF NOT EXISTS `membership` (
 
 CREATE TABLE IF NOT EXISTS `task` (
   `taskID` int(11) NOT NULL AUTO_INCREMENT,
-  `groupID` int(11) NOT NULL,
+  `groupsID` int(11) NOT NULL,
   `name` varchar(30) COLLATE latin2_general_ci NOT NULL,
   `description` tinytext COLLATE latin2_general_ci NOT NULL,
   `due_date` int(11) UNSIGNED NOT NULL,
-  `created_byID` int(11) NOT NULL,
+  `userID` int(11) NOT NULL,
   PRIMARY KEY (`taskID`),
-  KEY `groupID` (`groupID`),
+  KEY `groupsID` (`groupsID`),
   FULLTEXT KEY `name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci AUTO_INCREMENT=1 ;
 

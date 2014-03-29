@@ -1,5 +1,5 @@
 <style type="text/css" media="screen">
-	@import '../static/css/home.css';
+	@import '/static/css/home.css';
 </style>
 
 <div class="container">
