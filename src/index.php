@@ -22,24 +22,56 @@ $app = new \Slim\Slim(array(
 	'mode' => 'development',
 	'debug' => true,
 	'session.handler' => null,
+	'log.enabled' => true,
+	'log.level' => \Slim\Log::DEBUG,
 	'templates.path' => './templates',
 	'view' => '\Slim\LayoutView',
 	'layout' => 'main.php'
 ));
 \Slim\Route::setDefaultConditions(array(
-	'id' => '[0-9]{1,}'
+	'id' => '[0-9]+'
 ));
 //$db->debug = $app->config('debug');
 
-function refresh(){
+$app->view->appendData(array(
+    'app' => $app
+));
+
+$app->roles = array(
+	'user-add' => 0,
+	'user-edit' => 0,
+	'group-add' => 1,
+	'group-edit' => 1,
+	'task-add' => 2,
+	'task-edit' => 2
+);
+
+$app->refresh = function (){
 	$app->redirect($app->request->getPath());
+};
+
+$app->getUser = function () use ($db){
+	return $db->user()->where('userID', $_SESSION['userID']);
+};
+
+function hasPerm(\Slim\Route $route){
+	$app = \Slim\Slim::getInstance();
+	if(!isset($_SESSION['userID'])){
+		$app->flash('error',"You have to log in to access this page");
+		$app->redirect('/login');
+	}
+	$user = $app->getUser->fetch();
+	if($user['position'] > $app->roles[$route->getName()]){
+		$app->flash('error',"You don't have permissions to access this page");
+		$app->redirect('/');
+	}
 }
 
 //check session timeout and logout current user
 if(isset($_SESSION['username']))
 if($_SESSION['lastRequest']+SESSION_TIMEOUT<time()){
 	session_destroy();
-	refresh();
+	$app->refresh();
 } else {
 	$_SESSION['lastRequest'] = time();
 }
@@ -57,7 +89,7 @@ $app->get('/', function () use ($app,$db){
 			'tasks' => $tasks
 		));
 	}
-});
+})->name('task-list');
 
 //login routes
 $app->get('/login', function () use ($app){
@@ -75,24 +107,27 @@ $app->get('/login', function () use ($app){
 $app->post('/login', function () use ($app,$db){
 	$post = $app->request->post();
 	$user = $db->user()->where('login', $post['login'])->fetch();
-	if($user==null)
-		echo "Wrong username";
-	elseif($user['password']==md5($post['password'])){
+	if($user==null){
+		$app->flash('error', "Wrong username");
+		$app->refresh;
+	} elseif($user['password']==md5($post['password'])){
 		$_SESSION['lastRequest'] = time();
 		$_SESSION['username'] = $user['login'];
 		$_SESSION['userID'] = $user['userID'];
-		$app->render('login-success.html');
+		$app->flash('success',"Login successful! Welcome: {$user['login']}");
+		$app->redirect('/');
 	} else {
-		echo "Incorrect password";
+		$app->refresh;
 	}
 });
 
 $app->get('/logout', function () use ($app){
 	session_destroy();
 	$address = $app->request->get('redirect_url');
-	if($address==null)
+	$app->flash('success','Successfully logged out');
+	if($address==null){
 		$app->redirect('/');
-	else
+	} else
 		$app->redirect($address);
 });
 
@@ -120,9 +155,9 @@ $app->post('/register', function () use ($app,$db){
 $app->group('/task', function () use ($app,$db) {
 
 	//task adding
-	$app->get('/add', function () use ($app){
+	$app->get('/add', 'hasPerm', function () use ($app){
 		$app->render('task-add.php');
-	});
+	})->name('task-add');
 
 	$app->post('/add', function () use ($app,$db){
 		$post = $app->request->post();
@@ -153,19 +188,19 @@ $app->group('/task', function () use ($app,$db) {
 			));
 		} else
 			echo "Task not found";
-	});
+	})->name('task-view');
 
 	//task editing
-	$app->get('/:id/edit', function ($id) use ($app,$db){
+	$app->get('/:id/edit', 'hasPerm', function ($id) use ($app,$db){
 		$result = $db->task()->where('taskID', $id);
 
 		if($task = $result->fetch())
 			$app->render('task-edit.php', array(
 				'task' => $task
 			));
-	});
+	})->name('task-edit');
 
-	$app->put('/:id/edit', function ($id) use ($app,$db){
+	$app->put('/:id/edit', 'hasPerm', function ($id) use ($app,$db){
 		$result = $db->task()->where('taskID', $id);
 
 		if($task = $result->fetch()){
@@ -224,7 +259,11 @@ $app->group('/group', function () use ($app,$db){
 $app->group('/user', function () use ($app,$db){
 
 	//user adding
-	$app->get('/add', function () use ($app,$db){
+	$app->get('/add', function () use ($app){
+		$app->render('user-add.php');
+	})->name('user-add');
+
+	$app->post('/add', function () use ($app,$db){
 		$post = $app->request->post();
 		$result = $db->user()->insert($post);
 

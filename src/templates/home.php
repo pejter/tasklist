@@ -7,7 +7,7 @@
 		<thead>
 			<tr>
 				<th>Task name</th>
-				<th>Status</th>
+				<th>Description</th>
 				<th>Days left</th>
 			</tr>
 		</thead>
