@@ -19,6 +19,7 @@
 		<ul class="nav navbar-nav">
 			<li><a href="<?php echo $app->urlFor('task-list') ?>">Main page</a></li>
 			<li><a href="<?php echo $app->urlFor('task-add') ?>">Add task</a></li>
+			<li><a href="<?php echo $app->urlFor('groups-add') ?>">Add group</a></li>
 
 		</ul>
 		<span id="ident"><?php if(isset($_SESSION['username'])) echo "<span>".$_SESSION['username']."</span><a id=\"auth\" href=\"/logout?redirect_url={$_SERVER['REQUEST_URI']}\">Logout</a>"; else echo '<a id="auth" href="/login">Login</a>'; ?></span>
@@ -44,6 +45,7 @@
 <?php } ?>
 
 <?php echo $yield ?>
+
 <script type="text/javascript" charset="utf-8">
 	var menu = document.getElementsByClassName('nav')[0].children;
 	for (var i = menu.length - 1; i >= 0; i--) {

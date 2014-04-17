@@ -1,6 +1,5 @@
 <div class="container">
 <form class="form-horizontal" role="form" action="#" method="POST">
-	<input type="hidden" name="_METHOD" value="PUT"/>
 	<input type="hidden" name="taskID" value="0"/>
 	<input type="hidden" name="userID" value="<?php echo $_SESSION['userID'] ?>">
 

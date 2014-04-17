@@ -46,7 +46,7 @@ $app->roles = array(
 	'task-edit' => 2
 );
 
-$app->refresh = function (){
+$app->refresh = function () use ($app){
 	$app->redirect($app->request->getPath());
 };
 
@@ -71,7 +71,7 @@ function hasPerm(\Slim\Route $route){
 if(isset($_SESSION['username']))
 if($_SESSION['lastRequest']+SESSION_TIMEOUT<time()){
 	session_destroy();
-	$app->refresh();
+	$app->refresh;
 } else {
 	$_SESSION['lastRequest'] = time();
 }
@@ -162,17 +162,19 @@ $app->group('/task', function () use ($app,$db) {
 	$app->post('/add', function () use ($app,$db){
 		$post = $app->request->post();
 
-		list($date, $time) = explode(' ', $put['due_date']);
-		list($due_date['d'], $due_date['m'], $due_date['y']) = explode('/', $date);
+		list($date, $time) = explode(' ', $post['due_date']);
+		list($due_date['d'], $due_date['m'], $due_date['y']) = explode('-', $date);
 		list($due_time['h'], $due_time['i']) = explode(':', $time);
 		$post['due_date'] = mktime($due_time['h'], $due_time['i'], 0, $due_date['m'], $due_date['d'], $due_date['y']);
-		
 		$result = $db->task()->insert($post);
 
-		if(!$result)
-			echo "Error!";
-		else
-			echo "Task added";
+		if(!$result){
+			$app->flash('error', 'Error adding task');
+			$app->refresh;
+		} else {
+			$app->flash('success', 'Task added');
+			$app->redirect('/');
+		}
 	});
 
 	//task details
@@ -211,37 +213,57 @@ $app->group('/task', function () use ($app,$db) {
 			list($due_time['h'], $due_time['i']) = explode(':', $time);
 			$put['due_date'] = mktime($due_time['h'], $due_time['i'], 0, $due_date['m'], $due_date['d'], $due_date['y']);
 			if($put != $task->jsonSerialize()){
-				$result = $task->update($put);
 
-				if(!$result){
+				if(!$task->update($put)){
 					echo "Error!<br>Request: ";
 					var_dump($put);
 					echo "<br>Record: ";
 					var_dump($task->jsonSerialize());
-				} else
+				} else {
+					$app->flash('success', 'Task updated successfully');
 					$app->redirect('/task/'.$put['taskID']);
+				}
 			} else
 				$app->redirect('/task/'.$put['taskID']);
+		} else {
+			$app->flash('error', 'Task not found');
+			$app->redirect('/');
 		}
-		else
-			echo "Task not found";
+
 	});
 });
 
 $app->group('/group', function () use ($app,$db){
 
 	//group adding
-	$app->get('/add', function (){
-		echo "adding group";
+	$app->get('/add', function () use ($app){
+		$app->render('group-add.php');
+	})->name('groups-add');
+
+	$app->post('/add', function () use ($app,$db){
+		$post = $app->request->post();
+
+		if(!$db->groups->insert($post)){
+			$app->flash('error', 'Error adding group');
+			$app->refresh;
+		} else {
+			$app->flash('success', 'Group added');
+			$app->redirect('/');
+		}
 	});
 
 	//group details
 	$app->get('/:id',function ($id) use ($app,$db){
-		$group = $db->groups()->where('groupsID', $id);
+		$result = $db->groups()->where('groupsID', $id);
+
+		if(!$group = $result->fetch()){
+			$app->flash('error', 'Group not found');
+			$app->redirect('/');
+		}
 
 		$members = array();
-		foreach($group->membership() as $user){
-			$members += $user->user();
+		foreach($group->membership() as $member){
+			$members[] = $member->user;
 		}
 
 		$app->render('group-details.php', array(
@@ -251,8 +273,46 @@ $app->group('/group', function () use ($app,$db){
 	});
 
 	//group editing
-	$app->get('/:id/edit', function ($id){
-		echo "Group: ".$id." edit";
+	$app->get('/:id/edit', 'hasPerm', function ($id) use ($app,$db){
+		$result = $db->groups()->where('groupsID', $id);
+
+		if(!$group = $result->fetch()){
+			$app->flash('error', 'Group not found');
+			$app->redirect('/');
+		}
+
+		$members = array();
+		foreach($group->membership() as $member){
+			$members[] = $member->user;
+		}
+
+		$app->render('group-edit.php', array(
+			'group' => $group,
+			'members' => $members
+		));
+	})->name('group-edit');
+
+	$app->put('/:id/edit', function ($id) use ($app,$db){
+		$result = $db->groups()->where('groupsID', $id);
+
+		if($group = $result->fetch()){
+			$put = $app->request->put();
+			unset($put['_METHOD']);
+			if($put != $group->jsonSerialize()){
+				if($group->update($put)){
+					$app->flash('success', 'Group updated successfully');
+					$app->redirect('/group/'.$put['groupsID']);
+				} else {
+					$app->getLog()->debug(var_dump($put));
+					$app->getLog()->debug(var_dump($group));
+				}
+			} else {
+				$app->redirect('/');
+			}
+		} else {
+			$app->flash('error', 'Group not found');
+			$app->redirect('/');
+		}
 	});
 });
 
@@ -264,10 +324,7 @@ $app->group('/user', function () use ($app,$db){
 	})->name('user-add');
 
 	$app->post('/add', function () use ($app,$db){
-		$post = $app->request->post();
-		$result = $db->user()->insert($post);
-
-		if(!$result)
+		if(!$db->user()->insert($app->request->post()))
 			echo "Error!";
 		else
 			echo "User added";
