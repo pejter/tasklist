@@ -22,7 +22,7 @@
 			<li><a href="<?php echo $app->urlFor('groups-add') ?>">Add group</a></li>
 
 		</ul>
-		<span id="ident"><?php if(isset($_SESSION['username'])) echo "<span>".$_SESSION['username']."</span><a id=\"auth\" href=\"/logout?redirect_url={$_SERVER['REQUEST_URI']}\">Logout</a>"; else echo '<a id="auth" href="/login">Login</a>'; ?></span>
+		<span id="ident"><?php if(isset($_SESSION['username'])) echo "<span>".$_SESSION['username']."</span><a id=\"auth\" href=\"/logout?redirect_url={$_SERVER['REQUEST_URI']}\">Logout</a>"; else echo '<a id="auth" href="/login?redirect_url={$_SERVER[\'REQUEST_URI\']}">Login</a>'; ?></span>
 	</div>
 </nav>
 
